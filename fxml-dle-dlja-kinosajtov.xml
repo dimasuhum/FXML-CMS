@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dleplugin>
+	<name>FXML DLE для киносайтов</name>
+	<description>FXML DLE киносайт для ForkPlayer. 
+	Каждая запись должна иметь доп. поля (tortuga, directlink) в которых ссылки на плееры или прямые ссылки на видео. Настройка списка полей находится в файле engine/modules/fxml.php
+	</description>
+	<icon></icon>
+	<version>1.1</version>
+	<dleversion>13</dleversion>
+	<versioncompare>greater</versioncompare>
+	<upgradeurl></upgradeurl>
+	<filedelete>0</filedelete>
+	<mysqlinstall><![CDATA[]]></mysqlinstall>
+	<mysqlupgrade><![CDATA[]]></mysqlupgrade>
+	<mysqlenable><![CDATA[]]></mysqlenable>
+	<mysqldisable><![CDATA[]]></mysqldisable>
+	<mysqldelete><![CDATA[]]></mysqldelete>
+	<file name="engine/init.php">
+		<operation action="before">
+			<searchcode><![CDATA[dle_session();]]></searchcode>
+			<replacecode><![CDATA[// FXML DLE fix wiki.forkplayer.tv
+if(isset($_GET["box_mac"])) {	
+	header('Access-Control-Allow-Origin: *');
+	header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+	header("Access-Control-Allow-Headers: Accept, Content-Type");
+	if($_SERVER['REQUEST_METHOD']=='OPTIONS') exit;
+	$_ISPC=false;
+	foreach($_GET["cookie"] as $k=>$v){
+		$_COOKIE[$k]=$v;
+	}
+}
+else $_ISPC=true;
+// FXML DLE fix wiki.forkplayer.tv
+]]></replacecode>
+		</operation>
+		<operation action="before">
+			<searchcode><![CDATA[$tpl->dir = ROOT_DIR . '/templates/' . totranslit($config['skin'], false, false);]]></searchcode>
+			<replacecode><![CDATA[// FXML DLE fix wiki.forkplayer.tv
+if(!$_ISPC){
+	if ( @is_dir ( ROOT_DIR . '/templates/fxml' ) ) {
+		$config['skin'] = "fxml";
+		$smartphone_detected = true;
+		$config['allow_alt_url']=0;
+		if( $config['allow_comments_wysiwyg'] > 0 ) $config['allow_comments_wysiwyg'] = 0;
+	}
+}
+// FXML DLE fix wiki.forkplayer.tv]]></replacecode>
+		</operation>
+	</file>
+	<file name="engine/modules/main.php">
+		<operation action="replace">
+			<searchcode><![CDATA[echo "\n<!-- DataLife Engine Copyright SoftNews Media Group (http://dle-news.ru) -->\r\n";]]></searchcode>
+			<replacecode><![CDATA[// FXML DLE fix wiki.forkplayer.tv
+if($_ISPC) echo "\n<!-- DataLife Engine Copyright SoftNews Media Group (http://dle-news.ru) -->\r\n";
+// FXML DLE fix wiki.forkplayer.tv]]></replacecode>
+		</operation>
+	</file>
+</dleplugin>
